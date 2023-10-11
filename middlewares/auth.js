@@ -1,0 +1,32 @@
+const jwt = require("jsonwebtoken");
+require("dotenv").config()
+
+exports.auth = async (req, res, next) => {
+    const token = req.header("x-api-key");
+    if (!token) {
+        return res.status(401).json({ err: "You need send token to this endpoint/url" })
+    }
+    try {
+        const decodeToken = jwt.verify(token, process.env.SECRET_KEY);
+        req.userData = decodeToken;
+        next()
+    }
+    catch (err) {
+        console.log(err);
+        res.status(502).json({ err: "Token invalid or expired" })
+    }
+}
+
+exports.adminAuth = async (req, res, next) => {
+    try {
+        if (req.userData.role != "admin") {
+            return res.status(401).json({ err: "You must be admin to see this endpoint" })
+        }
+
+        next()
+    }
+    catch (err) {
+        console.log(err);
+        res.status(502).json({ err })
+    }
+}
