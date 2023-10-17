@@ -4,11 +4,11 @@ const { getAllBoxs, getBoxByExactNum, getCount, addBox, updateBox, deleteBox } =
 const { auth } = require("../middlewares/auth");
 
 // returns all boxs
-router.get("/", auth, getAllBoxs)
+router.get("/", getAllBoxs)
 
 router.get("/getByNum/", getBoxByExactNum)
 
-router.get("/count", auth, getCount)
+router.get("/count", getCount)
 
 router.post("/", auth, addBox)
 
