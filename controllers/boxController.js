@@ -2,8 +2,8 @@ const { BoxModel, validateBox } = require("../models/boxModel");
 
 const getMaxColInBlock = async (box) => {
     try {
-        const { blockFromRight, isInsideRow, level } = box
-        const maxColBox = await BoxModel.findOne({ blockFromRight, isInsideRow, level }).sort({ columnFromRight: -1 })
+        const { blockFromRight, isInsideRow, level, areaInWarehouse } = box
+        const maxColBox = await BoxModel.findOne({ areaInWarehouse, blockFromRight, isInsideRow, level }).sort({ columnFromRight: -1 })
         return maxColBox.columnFromRight
     }
     catch (err) {
@@ -14,8 +14,8 @@ const getMaxColInBlock = async (box) => {
 }
 const getMaxNumInCol = async (box) => {
     try {
-        const { blockFromRight, columnFromRight, isInsideRow, level } = box
-        const maxNumFromTopBox = await BoxModel.findOne({ blockFromRight, columnFromRight, isInsideRow, level }).sort({ numFromTop: -1 })
+        const { blockFromRight, columnFromRight, isInsideRow, level, areaInWarehouse } = box
+        const maxNumFromTopBox = await BoxModel.findOne({ areaInWarehouse, blockFromRight, columnFromRight, isInsideRow, level }).sort({ numFromTop: -1 })
         return maxNumFromTopBox.numFromTop
     }
     catch (err) {
@@ -57,6 +57,7 @@ const boxCtrl = {
     async getBoxByExactNum(req, res) {
         try {
             const boxNumber = req.query.num
+
             if (!boxNumber) {
                 return res.status(400).json({ err: "Enter box number" });
             }
@@ -65,10 +66,10 @@ const boxCtrl = {
 
             const newArr = await Promise.all(data.map(async (b) => {
                 const maxColNum = await getMaxColInBlock(b)
+
                 const maxBoxNumFromTop = await getMaxNumInCol(b)
                 return ({ ...b._doc, maxColNum, maxBoxNumFromTop });
             }))
-
             res.json(newArr);
         } catch (err) {
             console.log(err);
